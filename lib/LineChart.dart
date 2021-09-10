@@ -39,14 +39,14 @@ class LineChart extends StatefulWidget {
   //y轴最大值
   final int? maxYValue;
 
-  //y轴分多少行
-  final int? yCount;
+  //y轴之间的间隔
+  final double ySpace;
+
+  //y轴 文本标签 间隔多少显
+  final double yIntervalValue;
 
   //x轴最大值
   final int? maxXValue;
-
-  // //x轴分多少行
-  // final int? xCount;
 
   //x轴每列之间的间隔
   final double xSpace;
@@ -64,12 +64,13 @@ class LineChart extends StatefulWidget {
       this.height, {
         required this.dataList,
         required this.maxYValue,
-        required this.yCount,
         required this.maxXValue,
         this.bgColor = Colors.white,
         this.xyColor = Colors.black,
         this.columnarColor = Colors.blue,
         this.showBaseline = false,
+        this.ySpace = 10,
+        this.yIntervalValue = 10,
         this.xSpace = 10,
         this.xIntervalValue = 10,
         this.paddingLeft = 30,
@@ -124,7 +125,8 @@ class _LineChartState extends State<LineChart> {
         showBaseline: widget.showBaseline,
         dataList: widget.dataList!,
         maxYValue: widget.maxYValue!,
-        yCount: widget.yCount!,
+        ySpace: widget.ySpace,
+        yIntervalValue: widget.yIntervalValue,
         maxXValue: widget.maxXValue!,
         xSpace: widget.xSpace,
         xIntervalValue: widget.xIntervalValue,
@@ -200,14 +202,14 @@ class _TestState extends State<Test> {
 
               markLineLength: 10,
 
-              // xOffset: 10,
               showBaseline: true,
 
               maxYValue: 200,
-              yCount: 20,
+              ySpace: 10,
+              yIntervalValue:40,
+
               maxXValue: 1000,
               xSpace: 10,
-              //x轴 文本 间隔多少显示
               xIntervalValue:50,
 
 

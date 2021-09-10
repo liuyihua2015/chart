@@ -41,8 +41,11 @@ class LineChartWidget extends CustomPainter {
   //y轴数据最大值
   int maxYValue;
 
-  //y轴分多少行
-  int yCount;
+  //y轴之间的间隔
+  double ySpace;
+
+  //y轴 文本标签 间隔多少显
+  double yIntervalValue;
 
   //x轴数据最大值
   int maxXValue;
@@ -67,7 +70,6 @@ class LineChartWidget extends CustomPainter {
   LineChartWidget({
     required this.dataList,
     required this.maxYValue,
-    required this.yCount,
     required this.maxXValue,
     this.linePaint,
     this.pathPaint,
@@ -75,6 +77,8 @@ class LineChartWidget extends CustomPainter {
     this.xyColor = Colors.black,
     this.pathLineColor = Colors.red,
     this.showBaseline = false,
+    this.ySpace = 10,
+    this.yIntervalValue = 10,
     this.xSpace = 10,
     this.xIntervalValue = 10,
     this.paddingLeft = 0,
@@ -119,16 +123,24 @@ class LineChartWidget extends CustomPainter {
     canvas.drawLine(innerRect.bottomLeft, innerRect.bottomRight, linePaint!);
 
     //画y轴标记
-    double ySpace = innerRect.height / yCount;
+
     double startX = innerRect.topLeft.dx - markLineLength;
     double startY;
-    for (int i = 0; i < yCount + 1; i++) {
-      startY = innerRect.topLeft.dy + i * ySpace;
+
+    //需要的标记轴间隔几根
+    int markYShaft =  yIntervalValue ~/ ySpace;
+
+    for (int i = 0; i < (maxYValue~/ySpace) + 1; i++) {
+
+      //需要标记轴的标记值
+      int markYShaftValue =  i * ySpace.toInt();
+
+      startY = innerRect.topLeft.dy + (i * ySpace);
       if (showBaseline) {
         canvas.drawLine(
           Offset(innerRect.topLeft.dx, startY),
-          Offset(1000.toDouble() + paddingRight, startY),
-          linePaint!,
+          Offset(innerRect.size.width + paddingRight, startY),
+          linePaint!..strokeWidth = (i % markYShaft == 0) ? 1 : 0.3,
         );
       } else {
         canvas.drawLine(
@@ -138,9 +150,9 @@ class LineChartWidget extends CustomPainter {
         );
       }
       //TODO...  显示间隔 默认 40
-      if ((i % (40 ~/ (maxYValue ~/ yCount))) == 0) {
+      if ((i % markYShaft) == 0 && markYShaftValue!= 0) {
         drawYText(
-          (i * maxYValue ~/ yCount).toString(),
+          markYShaftValue.toString(),
           Offset(innerRect.topLeft.dx - markLineLength,
               innerRect.bottomLeft.dy - i * ySpace),
           canvas,
@@ -148,7 +160,12 @@ class LineChartWidget extends CustomPainter {
       }
     }
 
+
     //画x轴标记
+
+    //需要的标记轴间隔几根
+    int markXShaft =  xIntervalValue ~/ xSpace;
+
     startY = innerRect.bottom;
     for (int i = 0; i < (maxXValue~/xSpace)+1; i++) {
       startX = innerRect.bottomLeft.dx + i * xSpace;
@@ -164,11 +181,14 @@ class LineChartWidget extends CustomPainter {
         );
       }
 
+      //需要标记轴的标记值
+      int markXShaftValue =  i * xSpace ~/ xIntervalValue;
+
       if (showBaseline) {
         canvas.drawLine(
           Offset(startX, innerRect.top),
           Offset(startX, startY),
-          linePaint!,
+          linePaint!..strokeWidth = (i % markXShaft == 0) ? 1 : 0.3,
         );
       } else {
         canvas.drawLine(
@@ -180,28 +200,15 @@ class LineChartWidget extends CustomPainter {
       if (innerRect.bottomLeft.dx  < innerRect.left) {
         canvas.restore();
       }
-      print('-----');
-      print(maxXValue/xSpace);
-      print(xIntervalValue ~/ xSpace);
-      print((i % (xIntervalValue ~/ (xSpace))));
-      print('++++');
-
-      //需要标记轴间隔几根
-      int markXShaft =  xIntervalValue ~/ xSpace;
-      //需要标记轴的标记值
-      int markXShaftValue =  i * xSpace ~/ xIntervalValue;
 
 
       if ((i % markXShaft) == 0 && markXShaftValue!= 0) {
-        linePaint!..strokeWidth = 1;
         drawYText(
-          '${markXShaftValue} min',
+          '${markXShaftValue.toString()} min',
           Offset(innerRect.bottomLeft.dx.toDouble() + i * xSpace + xSpace,
               startY + paddingBottom),
           canvas,
         );
-      }else{
-        linePaint!..strokeWidth = 0.5;
       }
     }
 
