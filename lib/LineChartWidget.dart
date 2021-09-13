@@ -1,4 +1,4 @@
-import 'dart:math';
+
 import 'dart:ui';
 
 import 'package:echart/ChartData.dart';
@@ -32,11 +32,12 @@ class LineChartWidget extends CustomPainter {
 
   //绘制x轴、y轴、标记文字的画笔
   Paint? linePaint;
+
   //绘制线的画笔
   Paint? pathPaint;
 
-  //标记线的长度
-  int markLineLength;
+  //数值和表之间距离
+  int valueLineSpace;
 
   //y轴数据最大值
   int maxYValue;
@@ -67,6 +68,9 @@ class LineChartWidget extends CustomPainter {
   late Path _fhrPath;
   late Path _tocoPath;
 
+  //画布矩形
+  Rect innerRect = Rect.zero;
+
   LineChartWidget({
     required this.dataList,
     required this.maxYValue,
@@ -84,7 +88,7 @@ class LineChartWidget extends CustomPainter {
     this.paddingLeft = 0,
     this.paddingTop = 0,
     this.paddingBottom = 0,
-    this.markLineLength = 0,
+    this.valueLineSpace = 0,
   }) {
     _lastFhrPoint = Offset(0, 0);
     _lastValue = 0;
@@ -98,7 +102,7 @@ class LineChartWidget extends CustomPainter {
     pathPaint = Paint()
       ..color = pathLineColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
+      ..strokeWidth = 0.2;
 
     realChartRectWidth = (dataList.length - 1) * xSpace;
   }
@@ -107,14 +111,15 @@ class LineChartWidget extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     //画背景颜色
     canvas.drawRect(
-        Rect.fromLTWH(0, 0, size.width, size.height + paddingBottom),
-        Paint()..color = bgColor);
+        Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = bgColor);
     //创建一个矩形，方便后续绘制
-    Rect innerRect = Rect.fromPoints(
+    innerRect = Rect.fromPoints(
       Offset(paddingLeft.toDouble(), paddingTop.toDouble()),
-      Offset(1000.toDouble() + paddingRight,
-          size.height - paddingBottom - markLineLength),
+
+      //TODO...判断左右空间 和 数值和表的空间
+      Offset(size.width - paddingLeft, size.height - paddingBottom),
     );
+
     //画y轴
     canvas.drawLine(innerRect.topLeft, innerRect.bottomLeft, linePaint!);
     //画另一边y轴
@@ -123,17 +128,15 @@ class LineChartWidget extends CustomPainter {
     canvas.drawLine(innerRect.bottomLeft, innerRect.bottomRight, linePaint!);
 
     //画y轴标记
-
-    double startX = innerRect.topLeft.dx - markLineLength;
+    double startX = innerRect.topLeft.dx - valueLineSpace;
     double startY;
 
     //需要的标记轴间隔几根
-    int markYShaft =  yIntervalValue ~/ ySpace;
+    int markYShaft = yIntervalValue ~/ ySpace;
 
-    for (int i = 0; i < (maxYValue~/ySpace) + 1; i++) {
-
+    for (int i = 0; i < (maxYValue ~/ ySpace) + 1; i++) {
       //需要标记轴的标记值
-      int markYShaftValue =  i * ySpace.toInt();
+      int markYShaftValue = i * ySpace.toInt();
 
       startY = innerRect.topLeft.dy + (i * ySpace);
       if (showBaseline) {
@@ -149,27 +152,27 @@ class LineChartWidget extends CustomPainter {
           linePaint!,
         );
       }
-      //TODO...  显示间隔 默认 40
-      if ((i % markYShaft) == 0 && markYShaftValue!= 0) {
+      print('Y轴 重新绘制了');
+
+      if ((i % markYShaft) == 0 && markYShaftValue != 0) {
         drawYText(
           markYShaftValue.toString(),
-          Offset(innerRect.topLeft.dx - markLineLength,
+          Offset(innerRect.topLeft.dx - valueLineSpace,
               innerRect.bottomLeft.dy - i * ySpace),
           canvas,
         );
       }
     }
 
-
     //画x轴标记
 
     //需要的标记轴间隔几根
-    int markXShaft =  xIntervalValue ~/ xSpace;
+    int markXShaft = xIntervalValue ~/ xSpace;
 
     startY = innerRect.bottom;
-    for (int i = 0; i < (maxXValue~/xSpace)+1; i++) {
+    for (int i = 0; i < (maxXValue ~/ xSpace) + 1; i++) {
       startX = innerRect.bottomLeft.dx + i * xSpace;
-      if (innerRect.bottomLeft.dx  < innerRect.left) {
+      if (innerRect.bottomLeft.dx < innerRect.left) {
         canvas.save();
         canvas.clipRect(
           Rect.fromLTWH(
@@ -182,7 +185,7 @@ class LineChartWidget extends CustomPainter {
       }
 
       //需要标记轴的标记值
-      int markXShaftValue =  i * xSpace ~/ xIntervalValue;
+      int markXShaftValue = i * xSpace ~/ xIntervalValue;
 
       if (showBaseline) {
         canvas.drawLine(
@@ -197,96 +200,29 @@ class LineChartWidget extends CustomPainter {
           linePaint!,
         );
       }
-      if (innerRect.bottomLeft.dx  < innerRect.left) {
+      if (innerRect.bottomLeft.dx < innerRect.left) {
         canvas.restore();
       }
 
-
-      if ((i % markXShaft) == 0 && markXShaftValue!= 0) {
+      print('X轴 重新绘制了');
+      if ((i % markXShaft) == 0 && markXShaftValue != 0) {
         drawYText(
           '${markXShaftValue.toString()} min',
           Offset(innerRect.bottomLeft.dx.toDouble() + i * xSpace + xSpace,
-              startY + paddingBottom),
+              startY + 5 + valueLineSpace), //5为字体高度
           canvas,
         );
       }
     }
-
-
-    //  绘制曲线
-
-    //保存每个实际数据的值在屏幕中的x、y坐标值
-    List<Pair<double, double>> pointList = [];
-
-    for (int i = 0; i < dataList.length; i++) {
-      ChartData data = dataList[i];
-      startX = innerRect.bottomLeft.dx + (dataList[i].type ~/ 5);
-      // print("1--startX:${startX},value:${data.value}");
-      if (data.value == 0) {
-        pointList.add(
-          Pair(
-            startX,
-            0
-          ),
-        );
-      }else{
-        pointList.add(
-          Pair(
-            startX,
-            //内矩形高度减去数据实际值的实际像素大小，再加上顶部空白的距离
-            innerRect.height -
-                dataList[i].value / maxYValue * innerRect.height +
-                paddingTop,
-          ),
-        );
-      }
-    }
-    drawPath(pointList, size, canvas);
-  }
-
-//  绘制曲线
-//   List<Pair<double, double>> pointList,
-  void drawPath(
-      List<Pair<double, double>> pointList, Size size, Canvas canvas) {
-    //1.不断添加的数组 这里先写死
-
-    double _wPerSec = 50 / 60;
-    // 每个点的宽度 每秒4点位 一分钟50的宽度
-    double sepw = _wPerSec / 4;
-    //初始高度
-    // double h = (size.height - this.paddingBottom) * (4.0 / 5);
-
-    // 新的最后一个坐标
-    Offset newLastPoint = Offset(0, 0);
-
-    //循环变量数据
-    for (var i = 0; i < pointList.length; ++i) {
-      Pair data = pointList[i];
-      double x = data.first.toDouble();
-      double y = data.last.toDouble();
-      if (i == 0) {
-        _fhrPath.moveTo(x, y);
-        newLastPoint = Offset(x, y);
-      } else {
-        if (y == 0) {
-          newLastPoint = Offset(0, 0);
-        } else {
-          if (newLastPoint.dy == 0) {
-            _fhrPath.moveTo(x,y);
-          }else{
-            _fhrPath.lineTo(x, y);
-          }
-          newLastPoint = Offset(x, y);
-        }
-      }
-    }
-
+    addListPoint(canvas, dataList);
+    // //绘画曲线
     canvas.drawPath(_fhrPath, pathPaint!);
   }
 
   List getTextPainterAndSize(String text) {
     TextPainter textPainter = TextPainter(
-      textDirection: TextDirection.ltr,/**/
+      textDirection: TextDirection.ltr,
+      /**/
       text: TextSpan(
         text: text,
         style: TextStyle(color: Colors.black, fontSize: 10),
@@ -310,6 +246,52 @@ class LineChartWidget extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
+    print(oldDelegate != this);
     return oldDelegate != this;
+  }
+
+//添加所有数据点位
+  void addListPoint(Canvas canvas, List<ChartData> fhr) {
+    print('曲线路径 addListPoint 重新绘制');
+    // 新的最后一个坐标
+    Offset newLastPoint = Offset(0, 0);
+    double x = 0;
+    double y = 0;
+    double innerRectStartX = 0;
+
+    for (int i = 0; i < fhr.length; i++) {
+      innerRectStartX = innerRect.bottomLeft.dx + (fhr[i].type ~/ 5);
+
+      ChartData data = fhr[i];
+      Pair pairData = Pair(
+        innerRectStartX,
+        //内矩形高度减去数据实际值的实际像素大小，再加上顶部空白的距离
+        data.value == 0
+            ? 0
+            : innerRect.height -
+                fhr[i].value / maxYValue * innerRect.height +
+                paddingTop,
+      );
+      double x = pairData.first.toDouble();
+      double y = pairData.last.toDouble();
+      // print("1--startX:${x},value:${y}");
+
+      if (data.value == 0) {
+        _fhrPath.moveTo(x, y);
+        newLastPoint = Offset(x, y);
+      } else {
+        if (y == 0) {
+          newLastPoint = Offset(0, 0);
+        } else {
+          if (newLastPoint.dy == 0) {
+            _fhrPath.moveTo(x, y);
+          } else {
+            _fhrPath.lineTo(x, y);
+          }
+          newLastPoint = Offset(x, y);
+        }
+      }
+    }
+
   }
 }

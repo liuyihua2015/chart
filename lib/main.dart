@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:echart/ChartData.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,139 +25,103 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  late List<ChartData> dataList = [];
+
+  GlobalKey _key = GlobalKey();
+
+
+  @override
+  void initState() {
+
+    addList();
+
+    super.initState();
+  }
+
+  void addList() {
+
+    late List<ChartData> tempDataList = [];
+
+    final _random = new Random();
+    int next(int min, int max) => min + _random.nextInt(max - min);
+
+    // 定时器，模拟数据返回
+    int count = 0;
+    const period = const Duration(seconds: 1);
+    Timer _timer = Timer.periodic(period, (timer) {
+      //到时回调
+      for (double i = 0; i < 4; i++) {
+        tempDataList.add(ChartData(count.toDouble(), next(120, 160).toDouble()));
+      }
+      count++;
+      // print(tempDataList.length);
+      setState((){
+
+        dataList = tempDataList;
+
+      });
+      if (count >= 4800) {
+        //取消定时器，避免无限回调
+        timer.cancel();
+      }
+    });
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('chart'),
+        title: Text("监测数据"),
       ),
-      // body: Container(
-      //   child: LineChart(
-      //     size.width,
-      //     300,
-      //     bgColor: Colors.red,
-      //     xOffset: 10,
-      //     showBaseline: true,
-      //     maxYValue: 600,
-      //     yCount: 6,
-      //     dataList: [
-      //       ChartData("Data A", 100),
-      //       ChartData("Data B", 300),
-      //       ChartData("Data C", 200),
-      //       ChartData("Data D", 500),
-      //       ChartData("Data E", 450),
-      //       ChartData("Data F", 230),
-      //       ChartData("Data G", 270),
-      //       ChartData("Data H", 170),
-      //     ],
-      //   ),
-      // ),
-      //
-      body: Container(
-        margin: EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+      body: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: ClampingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Container(
-            color: Color(0xFFEDECED),
-            child: Stack(children: <Widget>[
-              Positioned(
-                top: 40,
-                child: Container(
-                  height: 40,
-                  width: 1000,
-                  color: Color(0xFF97E2D6),
-                ),
-              ),
-              CustomPaint(
-                size: Size(1000, 200), //指定画布大小
-                painter: MyPainter(),
-              ),
-            ]),
+            width: 1060, //宽度+左右padding
+            height: 240, //高度+上下padding
+            child: LineChart(
+              size.width,
+              240,
+              bgColor: Colors.greenAccent,
+              xyColor: Colors.grey,
+              // pathController:pathController,
+              paddingTop: 20,
+              paddingBottom: 20,
+
+              paddingLeft: 30,
+
+              valueLineSpace: 5,
+
+              showBaseline: true,
+
+              maxYValue: 200,
+              ySpace: 10,
+              yIntervalValue: 40,
+
+              maxXValue: 1000,
+              xSpace: 10,
+              xIntervalValue: 50,
+
+              dataList: dataList,
+              globalKey: _key,
+            ),
           ),
         ),
       ),
     );
   }
-}
-
-class MyPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    //画背景
-    var paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = 0.5
-      ..color = Colors.grey
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke
-      ..invertColors = false;
-
-    double rowLineCount = size.height / 10.0;
-    for (int i = 0; i < rowLineCount + 1; i++) {
-      double y = i * 10.0;
-      paint..strokeWidth = (i % 4 == 0) ? 0.5 : 0.3;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-    double colLineCount = size.width / 10.0;
-    for (int i = 0; i < colLineCount + 1; i++) {
-      double x = i * 10.0;
-      paint..strokeWidth = (i % 5 == 0) ? 0.5 : 0.3;
-
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-
-
-// var  _fhrPath = Path();
-//     _fhrPath.cubicTo(
-//         size.width / 4,
-//         3 * size.height / 4,
-//         3 * size.width / 4,
-//         size.height / 4,
-//         size.width,
-//         size.height);
-
-    // _fhrPath.close();
-
-
-
-    // _fhrPath.addPolygon([
-    //   // Offset(100.0, 100.0),
-    //   // Offset(200.0, 200.0),
-    //   // Offset(100.0, 300.0),
-    //   // Offset(150.0, 350.0),
-    //   // Offset(150.0, 500.0),
-    //   Offset.zero,
-    //   Offset(size.width / 4, size.height / 4),
-    //   Offset(size.width / 2, size.height)
-    // ], false);
-
-    // _fhrPath.moveTo(100.0, 100.0);
-    //
-    // _fhrPath.lineTo(200.0, 200.0);
-    // _fhrPath.lineTo(100.0, 300.0);
-    // _fhrPath.lineTo(150.0, 350.0);
-    // _fhrPath.lineTo(150.0, 500.0);
-
-    // _fhrPath.cubicTo(
-    //     size.width / 4,
-    //     3 * size.height / 4,
-    //     3 * size.width / 4,
-    //     size.height / 4,
-    //     size.width,
-    //     size.height);
-
-    // _fhrPath.close();
-    //
-    // canvas.drawPath(_fhrPath, paint);
-  }
-
-  //在实际场景中正确利用此回调可以避免重绘开销，本示例我们简单的返回true
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
