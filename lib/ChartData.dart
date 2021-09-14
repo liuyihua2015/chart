@@ -1,7 +1,7 @@
 
 class ChartData {
-  double type;
+  double count;//1-4800 点位count
   double value;
 
-  ChartData(this.type, this.value);
+  ChartData(this.count, this.value);
 }

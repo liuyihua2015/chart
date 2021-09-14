@@ -1,7 +1,7 @@
-
 import 'dart:ui';
 import 'package:echart/ChartData.dart';
-import 'package:echart/LineChartWidget.dart';
+import 'package:echart/ChartPathWidget.dart';
+import 'package:echart/ChartLineWidget.dart';
 import 'package:flutter/material.dart';
 
 class LineChart extends StatefulWidget {
@@ -20,11 +20,17 @@ class LineChart extends StatefulWidget {
   //是否显示x轴与y轴的基准线
   final bool showBaseline;
 
-  //实际的数据
-  final List<ChartData>? dataList;
+  //第一条曲线数据
+  final List<ChartData> firstDataList;
+
+  //第二条曲线数据 最多两条数据
+  final List<ChartData>? secondDataList;
 
   //控件距离左边的距离
   final int paddingLeft;
+
+  //控件距离右边的距离
+  final int paddingRight;
 
   //控件距离顶部的距离
   final int paddingTop;
@@ -56,15 +62,19 @@ class LineChart extends StatefulWidget {
   //折线的颜色
   final Color polygonalLineColor;
 
-  final GlobalKey globalKey;
+  //指定背景范围
+  final Offset specifiesBgOffset;
+
+  //指定背景颜色
+  final Color specifiesBgColor;
 
   LineChart(
     this.width,
     this.height, {
     required this.maxYValue,
     required this.maxXValue,
-    required this.globalKey,
-    required this.dataList,
+    required this.firstDataList,
+    this.secondDataList,
     this.bgColor = Colors.white,
     this.xyColor = Colors.black,
     this.columnarColor = Colors.blue,
@@ -74,10 +84,13 @@ class LineChart extends StatefulWidget {
     this.xSpace = 10,
     this.xIntervalValue = 10,
     this.paddingLeft = 30,
+    this.paddingRight = 30,
     this.paddingTop = 30,
     this.paddingBottom = 30,
     this.valueLineSpace = 10,
     this.polygonalLineColor = Colors.blue,
+    this.specifiesBgOffset = const Offset(0, 0),
+    this.specifiesBgColor = Colors.greenAccent,
   });
 
   @override
@@ -85,47 +98,63 @@ class LineChart extends StatefulWidget {
 }
 
 class _LineChartState extends State<LineChart> {
-  late List<ChartData> dataList = [];
-
-  @override
-  void initState() {
-    super.initState();
+  Widget createLayers(List<CustomPainter> painters,
+      [Widget child = const SizedBox.expand()]) {
+    painters.reversed.forEach((painter) {
+      child = RepaintBoundary(
+        child: CustomPaint(
+          painter: painter,
+          child: child,
+        ),
+      );
+    });
+    return child;
   }
 
-  double xOffset = 0;
+  CustomPainter customPaintWidget() {
+    return ChartPathWidget(
+      bgColor: widget.bgColor,
+      xyColor: widget.xyColor,
+      showBaseline: widget.showBaseline,
+      firstDataList: widget.firstDataList,
+      secondDataList: widget.secondDataList,
+      maxYValue: widget.maxYValue!,
+      ySpace: widget.ySpace,
+      yIntervalValue: widget.yIntervalValue,
+      maxXValue: widget.maxXValue!,
+      xSpace: widget.xSpace,
+      xIntervalValue: widget.xIntervalValue,
+      paddingLeft: widget.paddingLeft,
+      paddingTop: widget.paddingTop,
+      paddingBottom: widget.paddingBottom,
+      valueLineSpace: widget.valueLineSpace,
+    );
+  }
 
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // _pathController.addPathData!();
-  // }
+  CustomPainter customPaintLineWidget() {
+    return ChartLineWidget(
+      specifiesBgColor: widget.specifiesBgColor,
+      specifiesBgOffset: widget.specifiesBgOffset,
+      bgColor: widget.bgColor,
+      xyColor: widget.xyColor,
+      showBaseline: widget.showBaseline,
+      maxYValue: widget.maxYValue!,
+      ySpace: widget.ySpace,
+      yIntervalValue: widget.yIntervalValue,
+      maxXValue: widget.maxXValue!,
+      xSpace: widget.xSpace,
+      xIntervalValue: widget.xIntervalValue,
+      paddingLeft: widget.paddingLeft,
+      paddingRight: widget.paddingRight,
+      paddingTop: widget.paddingTop,
+      paddingBottom: widget.paddingBottom,
+      valueLineSpace: widget.valueLineSpace,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: CustomPaint(
-        // key: widget.globalKey,
-        isComplex: true,
-        willChange: true,
-        size: Size(widget.width, widget.height),
-        painter: LineChartWidget(
-          bgColor: widget.bgColor,
-          xyColor: widget.xyColor,
-          showBaseline: widget.showBaseline,
-          dataList: widget.dataList!,
-          maxYValue: widget.maxYValue!,
-          ySpace: widget.ySpace,
-          yIntervalValue: widget.yIntervalValue,
-          maxXValue: widget.maxXValue!,
-          xSpace: widget.xSpace,
-          xIntervalValue: widget.xIntervalValue,
-          paddingLeft: widget.paddingLeft,
-          paddingTop: widget.paddingTop,
-          paddingBottom: widget.paddingBottom,
-          valueLineSpace: widget.valueLineSpace,
-        ),
-      ),
-    );
+    return Container(
+        child: createLayers([customPaintLineWidget(), customPaintWidget()]));
   }
 }

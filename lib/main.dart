@@ -33,9 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  late List<ChartData> dataList = [];
-
-  GlobalKey _key = GlobalKey();
+  late List<ChartData> fhrDataList = [];
+  late List<ChartData> tocoDataList = [];
 
 
   @override
@@ -48,7 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void addList() {
 
-    late List<ChartData> tempDataList = [];
+    late List<ChartData> tempfhrDataList = [];
+    late List<ChartData> tempTocoDataList = [];
 
     final _random = new Random();
     int next(int min, int max) => min + _random.nextInt(max - min);
@@ -58,14 +58,20 @@ class _MyHomePageState extends State<MyHomePage> {
     const period = const Duration(seconds: 1);
     Timer _timer = Timer.periodic(period, (timer) {
       //到时回调
+
+      double fhr =  next(120, 161).toDouble();
+      double too =  next(0, 101).toDouble();
+
       for (double i = 0; i < 4; i++) {
-        tempDataList.add(ChartData(count.toDouble(), next(120, 160).toDouble()));
+        tempfhrDataList.add(ChartData(count.toDouble(), fhr));
+        tempTocoDataList.add(ChartData(count.toDouble(), too));
       }
       count++;
-      // print(tempDataList.length);
+
       setState((){
 
-        dataList = tempDataList;
+        fhrDataList = tempfhrDataList;
+        tocoDataList =  tempTocoDataList;
 
       });
       if (count >= 4800) {
@@ -85,39 +91,47 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("监测数据"),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: ClampingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Container(
-            width: 1060, //宽度+左右padding
-            height: 240, //高度+上下padding
-            child: LineChart(
-              size.width,
-              240,
-              bgColor: Colors.greenAccent,
-              xyColor: Colors.grey,
-              // pathController:pathController,
-              paddingTop: 20,
-              paddingBottom: 20,
+      body: Container(
+        color: Colors.white,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: ClampingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Container(
+              width: 1060, //宽度+左右padding
+              height: 260, //高度+上下padding
+              child: LineChart(
+                size.width,
+                260,
+                bgColor: Color(0x00FFFFFF),
+                xyColor: Colors.grey,
 
-              paddingLeft: 30,
+                paddingTop: 30,
+                paddingBottom: 30,
 
-              valueLineSpace: 5,
+                paddingLeft: 30,
+                paddingRight: 30,
 
-              showBaseline: true,
+                valueLineSpace: 10,
 
-              maxYValue: 200,
-              ySpace: 10,
-              yIntervalValue: 40,
+                showBaseline: true,
 
-              maxXValue: 1000,
-              xSpace: 10,
-              xIntervalValue: 50,
+                specifiesBgOffset: Offset(120, 160),
+                specifiesBgColor: Colors.greenAccent,
 
-              dataList: dataList,
-              globalKey: _key,
+                maxYValue: 200,
+                ySpace: 10,
+                yIntervalValue: 40,
+
+                maxXValue: 1000,
+                xSpace: 10,
+                xIntervalValue: 50,
+
+                firstDataList: fhrDataList,
+                secondDataList: tocoDataList,
+
+              ),
             ),
           ),
         ),
