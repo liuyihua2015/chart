@@ -135,6 +135,7 @@ class _LineChartState extends State<LineChart> {
       specifiesBgOffset: widget.specifiesBgOffset,
       bgColor: widget.bgColor,
       xyColor: widget.xyColor,
+      showYAxis: false,
       showBaseline: widget.showBaseline,
       maxYValue: widget.maxYValue!,
       ySpace: widget.ySpace,

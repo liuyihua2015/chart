@@ -22,6 +22,9 @@ class ChartLineWidget extends CustomPainter {
   //xy值对应的基线宽度
   double baselineValueWidth;
 
+  //是否显示y轴的数据
+  bool showYAxis;
+
   //是否显示x轴与y轴的基准线
   bool showBaseline;
 
@@ -80,6 +83,7 @@ class ChartLineWidget extends CustomPainter {
     this.baselineValueColor = Colors.grey,
     this.baselineNormalWidth = 0.3,
     this.baselineValueWidth = 1,
+    this.showYAxis = true,
     this.showBaseline = false,
     this.ySpace = 10,
     this.yIntervalValue = 10,
@@ -93,7 +97,6 @@ class ChartLineWidget extends CustomPainter {
     this.specifiesBgOffset = const Offset(0, 0),
     this.specifiesBgColor = Colors.greenAccent,
   }) {
-
     linePaint = Paint()
       ..color = xyColor
       ..style = PaintingStyle.stroke
@@ -135,7 +138,6 @@ class ChartLineWidget extends CustomPainter {
   void drawXYLine(Canvas canvas) {
     //画y轴
     canvas.drawLine(innerRect.topLeft, innerRect.bottomLeft, linePaint!);
-
     //画另一边y轴
     Offset y_dx =
         Offset(innerRect.topRight.dx + paddingLeft, innerRect.topRight.dy);
@@ -180,15 +182,16 @@ class ChartLineWidget extends CustomPainter {
           linePaint!,
         );
       }
-      print('Y轴 重新绘制了');
 
-      if ((i % markYShaft) == 0 && markYShaftValue != 0) {
-        drawYText(
-          markYShaftValue.toString(),
-          Offset(innerRect.topLeft.dx - valueLineSpace,
-              innerRect.bottomLeft.dy - i * ySpace),
-          canvas,
-        );
+      if (showYAxis) {
+        if ((i % markYShaft) == 0 && markYShaftValue != 0) {
+          drawYText(
+            markYShaftValue.toString(),
+            Offset(innerRect.topLeft.dx - valueLineSpace,
+                innerRect.bottomLeft.dy - i * ySpace),
+            canvas,
+          );
+        }
       }
     }
 
@@ -237,7 +240,6 @@ class ChartLineWidget extends CustomPainter {
         canvas.restore();
       }
 
-      print('X轴 重新绘制了');
       if ((i % markXShaft) == 0 && markXShaftValue != 0) {
         drawYText(
           '${markXShaftValue.toString()} min',
