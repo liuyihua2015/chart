@@ -67,11 +67,6 @@ class ChartLineWidget extends CustomPainter {
   //指定背景颜色
   Color specifiesBgColor;
 
-  late Offset _lastFhrPoint;
-  int _lastValue = 0;
-  late Path _fhrPath;
-  late Path _tocoPath;
-
   //画布矩形
   Rect innerRect = Rect.zero;
 
@@ -98,10 +93,6 @@ class ChartLineWidget extends CustomPainter {
     this.specifiesBgOffset = const Offset(0, 0),
     this.specifiesBgColor = Colors.greenAccent,
   }) {
-    _lastFhrPoint = Offset(0, 0);
-    _lastValue = 0;
-    _fhrPath = Path();
-    _tocoPath = Path();
 
     linePaint = Paint()
       ..color = xyColor

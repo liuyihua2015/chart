@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer _timer = Timer.periodic(period, (timer) {
       //到时回调
 
-      double fhr =  next(120, 161).toDouble();
+      double fhr =  next(80, 200).toDouble();
       double too =  next(0, 101).toDouble();
 
       for (double i = 0; i < 4; i++) {

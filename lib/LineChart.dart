@@ -26,6 +26,9 @@ class LineChart extends StatefulWidget {
   //第二条曲线数据 最多两条数据
   final List<ChartData>? secondDataList;
 
+  //第一条线的阈值范围 （min，max）
+  final Offset firstPathThresholdOffset;
+
   //控件距离左边的距离
   final int paddingLeft;
 
@@ -90,7 +93,8 @@ class LineChart extends StatefulWidget {
     this.valueLineSpace = 10,
     this.polygonalLineColor = Colors.blue,
     this.specifiesBgOffset = const Offset(0, 0),
-    this.specifiesBgColor = Colors.greenAccent,
+    this.firstPathThresholdOffset = const Offset(80, 200),
+    this.specifiesBgColor = Colors.green,
   });
 
   @override
@@ -113,21 +117,15 @@ class _LineChartState extends State<LineChart> {
 
   CustomPainter customPaintWidget() {
     return ChartPathWidget(
-      bgColor: widget.bgColor,
-      xyColor: widget.xyColor,
       showBaseline: widget.showBaseline,
       firstDataList: widget.firstDataList,
       secondDataList: widget.secondDataList,
       maxYValue: widget.maxYValue!,
-      ySpace: widget.ySpace,
-      yIntervalValue: widget.yIntervalValue,
-      maxXValue: widget.maxXValue!,
-      xSpace: widget.xSpace,
-      xIntervalValue: widget.xIntervalValue,
+      paddingRight: widget.paddingRight,
       paddingLeft: widget.paddingLeft,
       paddingTop: widget.paddingTop,
       paddingBottom: widget.paddingBottom,
-      valueLineSpace: widget.valueLineSpace,
+      firstPathThresholdOffset: widget.firstPathThresholdOffset,
     );
   }
 
