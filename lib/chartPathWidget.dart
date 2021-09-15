@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:echart/ChartData.dart';
+import 'package:echart/chartData.dart';
 import 'package:flutter/material.dart';
 import 'package:echart/Pair.dart';
 

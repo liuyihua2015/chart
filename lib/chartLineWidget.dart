@@ -1,6 +1,4 @@
 import 'dart:ui';
-
-import 'package:echart/ChartData.dart';
 import 'package:flutter/material.dart';
 
 class ChartLineWidget extends CustomPainter {
@@ -112,9 +110,6 @@ class ChartLineWidget extends CustomPainter {
     //画指定背景颜色
     double height = specifiesBgOffset.dy - specifiesBgOffset.dx;
     double top = height + paddingTop;
-    print(size.width);
-    print(paddingLeft);
-    print(paddingRight);
     print(size.width - paddingLeft - paddingRight);
     canvas.drawRect(
         Rect.fromLTWH(paddingLeft.toDouble(), top,

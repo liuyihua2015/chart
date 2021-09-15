@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:echart/ChartData.dart';
+import 'package:echart/chartData.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'LineChart.dart';
+import 'lineChart.dart';
 
 void main() => runApp(MyApp());
 
@@ -93,13 +93,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         color: Colors.white,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: ClampingScrollPhysics(),
+        // child: SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
+        //   physics: ClampingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 0.0),
             child: Container(
-              width: 1060, //宽度+左右padding
+              width: 1000, //宽度+左右padding
               height: 260, //高度+上下padding
               child: LineChart(
                 size.width,
@@ -110,8 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 paddingTop: 30,
                 paddingBottom: 30,
 
-                paddingLeft: 30,
-                paddingRight: 30,
+                paddingLeft: 0,
+                paddingRight: 0,
 
                 valueLineSpace: 10,
 
@@ -134,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-        ),
+        // ),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'dart:ui';
-import 'package:echart/ChartData.dart';
-import 'package:echart/ChartPathWidget.dart';
-import 'package:echart/ChartLineWidget.dart';
+import 'package:echart/chartData.dart';
+import 'package:echart/chartFixedYLineWidget.dart';
+import 'package:echart/chartPathWidget.dart';
+import 'package:echart/chartLineWidget.dart';
 import 'package:flutter/material.dart';
 
 class LineChart extends StatefulWidget {
@@ -10,6 +11,9 @@ class LineChart extends StatefulWidget {
 
   //柱状图的背景颜色
   final Color bgColor;
+
+  //左右固定Y数值widght背景颜色
+  final Color fixedYLineBgColor;
 
   //x轴与y轴的颜色
   final Color xyColor;
@@ -86,15 +90,16 @@ class LineChart extends StatefulWidget {
     this.yIntervalValue = 10,
     this.xSpace = 10,
     this.xIntervalValue = 10,
-    this.paddingLeft = 30,
-    this.paddingRight = 30,
-    this.paddingTop = 30,
-    this.paddingBottom = 30,
+    this.paddingLeft = 0,
+    this.paddingRight = 0,
+    this.paddingTop = 0,
+    this.paddingBottom = 0,
     this.valueLineSpace = 10,
     this.polygonalLineColor = Colors.blue,
     this.specifiesBgOffset = const Offset(0, 0),
     this.firstPathThresholdOffset = const Offset(80, 200),
     this.specifiesBgColor = Colors.green,
+    this.fixedYLineBgColor = Colors.white,
   });
 
   @override
@@ -151,9 +156,57 @@ class _LineChartState extends State<LineChart> {
     );
   }
 
+  CustomPainter customChartFixedYLineWidget(bool isRight) {
+    return ChartFixedYLineWidget(
+      bgColor: widget.fixedYLineBgColor,
+      maxYValue: widget.maxYValue!,
+      ySpace: widget.ySpace,
+      yIntervalValue: widget.yIntervalValue,
+      paddingLeft: widget.paddingLeft,
+      paddingRight: widget.paddingRight,
+      paddingTop: widget.paddingTop,
+      paddingBottom: widget.paddingBottom,
+      valueLineSpace: widget.valueLineSpace,
+      isRightWidget: isRight,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: createLayers([customPaintLineWidget(), customPaintWidget()]));
+      child: Stack(alignment: Alignment.center, children: <Widget>[
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: ClampingScrollPhysics(),
+            child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 40.0),
+                width: 1000, //宽度+左右padding
+                height: 260, //高度+上下padding
+                child: createLayers(
+                    [customPaintLineWidget(), customPaintWidget()]))),
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 40,
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: customChartFixedYLineWidget(false),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: 40,
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: customChartFixedYLineWidget(true),
+            ),
+          ),
+        )
+      ]),
+    );
   }
 }
