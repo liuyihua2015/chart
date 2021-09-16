@@ -5,7 +5,7 @@ import 'package:echart/chartPathWidget.dart';
 import 'package:echart/chartLineWidget.dart';
 import 'package:flutter/material.dart';
 
-class LineChart extends StatefulWidget {
+class LineChartWidget extends StatefulWidget {
   final double width;
   final double height;
 
@@ -23,12 +23,6 @@ class LineChart extends StatefulWidget {
 
   //是否显示x轴与y轴的基准线
   final bool showBaseline;
-
-  //第一条曲线数据
-  final List<ChartData> firstDataList;
-
-  //第二条曲线数据 最多两条数据
-  final List<ChartData>? secondDataList;
 
   //第一条线的阈值范围 （min，max）
   final Offset firstPathThresholdOffset;
@@ -49,7 +43,10 @@ class LineChart extends StatefulWidget {
   final int valueLineSpace;
 
   //y轴最大值
-  final int? maxYValue;
+  final int maxYValue;
+
+  //x轴时间最大值(秒)
+  final int maxSeconds;
 
   //y轴之间的间隔
   final double ySpace;
@@ -58,7 +55,7 @@ class LineChart extends StatefulWidget {
   final double yIntervalValue;
 
   //x轴最大值
-  final int? maxXValue;
+  final int maxXValue;
 
   //x轴每列之间的间隔
   final double xSpace;
@@ -75,13 +72,21 @@ class LineChart extends StatefulWidget {
   //指定背景颜色
   final Color specifiesBgColor;
 
-  LineChart(
+  //第一条曲线数据
+  late List<ChartData>? _firstDataList;
+
+  //第二条曲线数据 最多两条数据
+  late List<ChartData>? _secondDataList;
+
+  //屏幕size
+  double? _screenWidth;
+
+  LineChartWidget(
     this.width,
     this.height, {
     required this.maxYValue,
     required this.maxXValue,
-    required this.firstDataList,
-    this.secondDataList,
+    required this.maxSeconds,
     this.bgColor = Colors.white,
     this.xyColor = Colors.black,
     this.columnarColor = Colors.blue,
@@ -100,13 +105,62 @@ class LineChart extends StatefulWidget {
     this.firstPathThresholdOffset = const Offset(80, 200),
     this.specifiesBgColor = Colors.green,
     this.fixedYLineBgColor = Colors.white,
-  });
+    Key? key,
+  }) : super(key: key) {
+    _firstDataList = [];
+    _secondDataList = [];
+    _screenWidth = 0.0;
+  }
 
   @override
-  _LineChartState createState() => _LineChartState();
+  LineChartWidgetState createState() => LineChartWidgetState();
 }
 
-class _LineChartState extends State<LineChart> {
+class LineChartWidgetState extends State<LineChartWidget> {
+  ScrollController _scrollController = ScrollController();
+
+  ///更新数据
+  void updataDataList(List<ChartData>? firstList, List<ChartData>? secondList) {
+
+    setState(() {
+
+      if (firstList != null) {
+
+        //应该偏移量
+        double offset = firstList.length ~/4.0/widget.width + widget._screenWidth!.toDouble() * 0.5;
+        print(widget.width);
+
+
+//TODO...偏移距离
+
+        widget._firstDataList = firstList;
+        _scrollController.animateTo(offset, duration: Duration(milliseconds: 500), curve: Curves.easeInCirc);
+      }
+      if (secondList != null) {
+        widget._secondDataList = secondList;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print("object");
+    _scrollController.addListener(() {
+      // 打印位置监听数据
+      // print("lister = ${_scrollController.offset}");
+
+      //   // 滚动到起始位置
+      //   _scrollController.animateTo(0, duration: Duration(seconds: 2), curve: Curves.easeInCirc);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
   Widget createLayers(List<CustomPainter> painters,
       [Widget child = const SizedBox.expand()]) {
     painters.reversed.forEach((painter) {
@@ -123,9 +177,11 @@ class _LineChartState extends State<LineChart> {
   CustomPainter customPaintWidget() {
     return ChartPathWidget(
       showBaseline: widget.showBaseline,
-      firstDataList: widget.firstDataList,
-      secondDataList: widget.secondDataList,
-      maxYValue: widget.maxYValue!,
+      firstDataList: widget._firstDataList,
+      secondDataList: widget._secondDataList,
+      maxYValue: widget.maxYValue,
+      maxXValue: widget.maxXValue,
+      maxSeconds: widget.maxSeconds,
       paddingRight: widget.paddingRight,
       paddingLeft: widget.paddingLeft,
       paddingTop: widget.paddingTop,
@@ -142,10 +198,10 @@ class _LineChartState extends State<LineChart> {
       xyColor: widget.xyColor,
       showYAxis: false,
       showBaseline: widget.showBaseline,
-      maxYValue: widget.maxYValue!,
+      maxYValue: widget.maxYValue,
       ySpace: widget.ySpace,
       yIntervalValue: widget.yIntervalValue,
-      maxXValue: widget.maxXValue!,
+      maxXValue: widget.maxXValue,
       xSpace: widget.xSpace,
       xIntervalValue: widget.xIntervalValue,
       paddingLeft: widget.paddingLeft,
@@ -159,15 +215,16 @@ class _LineChartState extends State<LineChart> {
   CustomPainter customChartFixedYLineWidget(bool isRight) {
     return ChartFixedYLineWidget(
       bgColor: widget.fixedYLineBgColor,
-      maxYValue: widget.maxYValue!,
+      maxYValue: widget.maxYValue,
       ySpace: widget.ySpace,
-      yIntervalValue: widget.yIntervalValue,
+      yIntervalValue: isRight ? 20 : widget.yIntervalValue,
       paddingLeft: widget.paddingLeft,
       paddingRight: widget.paddingRight,
       paddingTop: widget.paddingTop,
       paddingBottom: widget.paddingBottom,
-      valueLineSpace: widget.valueLineSpace,
+      valueLineSpace: isRight ? 5 : widget.valueLineSpace,
       isRightWidget: isRight,
+      yAxisMarkValueSuffix: isRight ? "%" : "",
     );
   }
 
@@ -178,10 +235,11 @@ class _LineChartState extends State<LineChart> {
         SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: ClampingScrollPhysics(),
+            controller: _scrollController,
             child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 40.0),
-                width: 1000, //宽度+左右padding
-                height: 260, //高度+上下padding
+                margin: const EdgeInsets.fromLTRB(40, 0, 50, 0),
+                width: (widget.maxXValue + widget.paddingLeft + widget.paddingRight).toDouble(), //宽度+左右padding
+                height: (widget.maxYValue + widget.paddingTop + widget.paddingBottom).toDouble(), //高度+上下padding
                 child: createLayers(
                     [customPaintLineWidget(), customPaintWidget()]))),
         Positioned(

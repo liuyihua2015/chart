@@ -110,7 +110,6 @@ class ChartLineWidget extends CustomPainter {
     //画指定背景颜色
     double height = specifiesBgOffset.dy - specifiesBgOffset.dx;
     double top = height + paddingTop;
-    print(size.width - paddingLeft - paddingRight);
     canvas.drawRect(
         Rect.fromLTWH(paddingLeft.toDouble(), top,
             size.width - paddingLeft - paddingRight, height),
@@ -152,11 +151,11 @@ class ChartLineWidget extends CustomPainter {
     double startY = 0;
 
     //需要的标记轴间隔几根
-    int markYShaft = yIntervalValue ~/ ySpace;
+    int yAxisMark = yIntervalValue ~/ ySpace;
 
     for (int i = 0; i < (maxYValue ~/ ySpace) + 1; i++) {
       //需要标记轴的标记值
-      int markYShaftValue = i * ySpace.toInt();
+      int yAxisMarkValue = i * ySpace.toInt();
 
       startY = innerRect.topLeft.dy + (i * ySpace);
       if (showBaseline) {
@@ -165,8 +164,8 @@ class ChartLineWidget extends CustomPainter {
           Offset(innerRect.bottomRight.dx + paddingLeft, startY),
           linePaint!
             ..strokeWidth =
-                (i % markYShaft == 0) ? baselineValueWidth : baselineNormalWidth
-            ..color = (i % markYShaft == 0)
+                (i % yAxisMark == 0) ? baselineValueWidth : baselineNormalWidth
+            ..color = (i % yAxisMark == 0)
                 ? baselineValueColor
                 : baselineNormalColor,
         );
@@ -179,9 +178,9 @@ class ChartLineWidget extends CustomPainter {
       }
 
       if (showYAxis) {
-        if ((i % markYShaft) == 0 && markYShaftValue != 0) {
+        if ((i % yAxisMark) == 0 && yAxisMarkValue != 0) {
           drawYText(
-            markYShaftValue.toString(),
+            yAxisMarkValue.toString(),
             Offset(innerRect.topLeft.dx - valueLineSpace,
                 innerRect.bottomLeft.dy - i * ySpace),
             canvas,
@@ -193,7 +192,7 @@ class ChartLineWidget extends CustomPainter {
     //画x轴标记
 
     //需要的标记轴间隔几根
-    int markXShaft = xIntervalValue ~/ xSpace;
+    int xAxisMark = xIntervalValue ~/ xSpace;
 
     startY = innerRect.bottom;
     for (int i = 0; i < (maxXValue ~/ xSpace) + 1; i++) {
@@ -211,7 +210,7 @@ class ChartLineWidget extends CustomPainter {
       }
 
       //需要标记轴的标记值
-      int markXShaftValue = i * xSpace ~/ xIntervalValue;
+      int xAxisMarkValue = i * xSpace ~/ xIntervalValue;
 
       if (showBaseline) {
         canvas.drawLine(
@@ -219,8 +218,8 @@ class ChartLineWidget extends CustomPainter {
           Offset(startX, startY),
           linePaint!
             ..strokeWidth =
-                (i % markXShaft == 0) ? baselineValueWidth : baselineNormalWidth
-            ..color = (i % markYShaft == 0)
+                (i % xAxisMark == 0) ? baselineValueWidth : baselineNormalWidth
+            ..color = (i % yAxisMark == 0)
                 ? baselineValueColor
                 : baselineNormalColor,
         );
@@ -235,9 +234,9 @@ class ChartLineWidget extends CustomPainter {
         canvas.restore();
       }
 
-      if ((i % markXShaft) == 0 && markXShaftValue != 0) {
+      if ((i % xAxisMark) == 0 && xAxisMarkValue != 0) {
         drawYText(
-          '${markXShaftValue.toString()} min',
+          '${xAxisMarkValue.toString()} min',
           Offset(innerRect.bottomLeft.dx.toDouble() + i * xSpace + xSpace,
               startY + 5 + valueLineSpace), //5为字体高度
           canvas,

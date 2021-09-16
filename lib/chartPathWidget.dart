@@ -26,7 +26,7 @@ class ChartPathWidget extends CustomPainter {
   bool showBaseline;
 
   //第一条曲线数据
-  List<ChartData> firstDataList;
+  List<ChartData>? firstDataList;
 
   //第二条曲线数据 最多两条数据
   List<ChartData>? secondDataList;
@@ -49,6 +49,12 @@ class ChartPathWidget extends CustomPainter {
   //y轴数据最大值
   int maxYValue;
 
+  //x轴数据最大值
+  int maxXValue;
+
+  //x轴时间最大值(秒)
+  int maxSeconds;
+
   late Offset _lastFirstPoint;
   late Offset _lastSecondPoint;
   double _lastFirstValue = 0;
@@ -57,13 +63,14 @@ class ChartPathWidget extends CustomPainter {
   late Path _firstPath;
   late Path _secondPath;
 
-
   //画布矩形
   Rect innerRect = Rect.zero;
 
   ChartPathWidget({
     required this.firstDataList,
+    required this.maxXValue,
     required this.maxYValue,
+    required this.maxSeconds,
     this.firstPathLineColor = Colors.red,
     this.secondPathLineColor = Colors.greenAccent,
     this.firstPathLineWidth = 0.5,
@@ -79,7 +86,7 @@ class ChartPathWidget extends CustomPainter {
     this.secondPathThresholdOffset = const Offset(0, 0),
   }) {
     _lastFirstPoint = Offset(0, 0);
-    _lastSecondPoint =  Offset(0, 0);
+    _lastSecondPoint = Offset(0, 0);
     _lastFirstValue = 0;
     _lastSecondValue = 0;
 
@@ -101,9 +108,9 @@ class ChartPathWidget extends CustomPainter {
           size.width - paddingLeft - paddingRight, size.height - paddingBottom),
     );
 
-
-    drawFirstDataPath(canvas, firstDataList);
-
+    if (firstDataList != null && firstDataList!.length > 0) {
+      drawFirstDataPath(canvas, firstDataList!);
+    }
     if (secondDataList != null && secondDataList!.length > 0) {
       drawSecondDataPath(canvas, secondDataList!);
     }
@@ -119,14 +126,12 @@ class ChartPathWidget extends CustomPainter {
 
     //阈值数值转换  大为小，小为大
     double min =
-    getRelativePosition(this.firstPathThresholdOffset.dy.toDouble());
+        getRelativePosition(this.firstPathThresholdOffset.dy.toDouble());
     double max =
-    getRelativePosition(this.firstPathThresholdOffset.dx.toDouble());
-
+        getRelativePosition(this.firstPathThresholdOffset.dx.toDouble());
 
     for (int i = 0; i < dataList.length; i++) {
-      innerRectStartX = innerRect.bottomLeft.dx + (dataList[i].count ~/ 5);
-
+      innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
       ChartData data = dataList[i];
       Pair pairData = Pair(
         innerRectStartX,
@@ -139,8 +144,7 @@ class ChartPathWidget extends CustomPainter {
       if (data.value == 0) {
         _firstPath.moveTo(x, y);
         newLastPoint = Offset(x, y);
-      } else
-        {
+      } else {
         if (y == 0) {
           newLastPoint = Offset(0, 0);
         } else {
@@ -198,13 +202,12 @@ class ChartPathWidget extends CustomPainter {
 
     //阈值数值转换  大为小，小为大
     double min =
-    getRelativePosition(this.secondPathThresholdOffset.dy.toDouble());
+        getRelativePosition(this.secondPathThresholdOffset.dy.toDouble());
     double max =
-    getRelativePosition(this.secondPathThresholdOffset.dx.toDouble());
+        getRelativePosition(this.secondPathThresholdOffset.dx.toDouble());
 
     for (int i = 0; i < dataList.length; i++) {
-      innerRectStartX = innerRect.bottomLeft.dx + (dataList[i].count ~/ 5);
-
+      innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
       ChartData data = dataList[i];
       Pair pairData = Pair(
           innerRectStartX,
@@ -218,8 +221,7 @@ class ChartPathWidget extends CustomPainter {
       if (data.value == 0) {
         _secondPath.moveTo(x, y);
         newLastPoint = Offset(x, y);
-      } else
-      {
+      } else {
         if (y == 0) {
           newLastPoint = Offset(0, 0);
         } else {
@@ -258,7 +260,6 @@ class ChartPathWidget extends CustomPainter {
       //   _lastSecondPoint = newLastPoint;
       // }
     }
-
 
     // //绘画曲线
     canvas.drawPath(

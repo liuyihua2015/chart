@@ -33,6 +33,10 @@ class ChartFixedYLineWidget extends CustomPainter {
   //是否为右边的widget
   bool isRightWidget;
 
+  //值后面添加标记，默认为""
+  String yAxisMarkValueSuffix;
+
+
   //画布矩形
   Rect innerRect = Rect.zero;
 
@@ -47,6 +51,7 @@ class ChartFixedYLineWidget extends CustomPainter {
     this.paddingBottom = 0,
     this.valueLineSpace = 0,
     this.isRightWidget = false,
+    this.yAxisMarkValueSuffix = "",
   }) {}
 
   @override
@@ -61,15 +66,11 @@ class ChartFixedYLineWidget extends CustomPainter {
       Offset(size.width, size.height),
     );
 
-    print(size);
-
     drawYBsseText(canvas, size);
   }
 
-
   ///画y轴数据
   void drawYBsseText(Canvas canvas, Size size) {
-
     //需要的标记轴间隔几根
     int markYShaft = yIntervalValue ~/ ySpace;
 
@@ -77,14 +78,22 @@ class ChartFixedYLineWidget extends CustomPainter {
       //需要标记轴的标记值
       int markYShaftValue = i * ySpace.toInt();
 
-        if ((i % markYShaft) == 0) {
-          drawYText(
-            markYShaftValue.toString(),
-            Offset(isRightWidget ? valueLineSpace.toDouble() : size.width - valueLineSpace,
-                innerRect.bottomLeft.dy - i * ySpace -  paddingTop),
-            canvas,
-          );
-        }
+      String value = markYShaftValue.toString();
+      if (isRightWidget) {
+        value = (markYShaftValue ~/ 0.4).toString() + yAxisMarkValueSuffix;
+      }
+
+      if ((i % markYShaft) == 0) {
+        drawYText(
+          value,
+          Offset(
+              isRightWidget
+                  ? valueLineSpace.toDouble()
+                  : size.width - valueLineSpace,
+              innerRect.bottomLeft.dy - i * ySpace - paddingTop),
+          canvas,
+        );
+      }
     }
   }
 
@@ -99,7 +108,6 @@ class ChartFixedYLineWidget extends CustomPainter {
     );
     textPainter.layout();
     Size size = textPainter.size;
-    print(size.width);
     return [textPainter, size];
   }
 
@@ -107,11 +115,10 @@ class ChartFixedYLineWidget extends CustomPainter {
     List list = getTextPainterAndSize(text);
 
     if (isRightWidget) {
+      list[0].paint(canvas, topLeftOffset.translate(0, -list[1].height / 2));
+    } else {
       list[0].paint(
-          canvas, topLeftOffset.translate(0, -list[1].height / 2));
-    }else{
-      list[0].paint(
-              canvas, topLeftOffset.translate(-list[1].width, -list[1].height / 2));
+          canvas, topLeftOffset.translate(-list[1].width, -list[1].height / 2));
     }
   }
 

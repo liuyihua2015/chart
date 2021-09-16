@@ -27,6 +27,8 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
+
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -36,14 +38,16 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<ChartData> fhrDataList = [];
   late List<ChartData> tocoDataList = [];
 
+  GlobalKey<LineChartWidgetState> globalKey = GlobalKey<LineChartWidgetState>();
+
 
   @override
   void initState() {
-
-    addList();
-
     super.initState();
+    addList();
   }
+
+
 
   void addList() {
 
@@ -66,15 +70,16 @@ class _MyHomePageState extends State<MyHomePage> {
         tempfhrDataList.add(ChartData(count.toDouble(), fhr));
         tempTocoDataList.add(ChartData(count.toDouble(), too));
       }
+      globalKey.currentState?.updataDataList(tempfhrDataList, tempTocoDataList);
+
       count++;
+      // setState((){
+        //   fhrDataList = tempfhrDataList;
+      //   tocoDataList =  tempTocoDataList;
+      //
+      // });
 
-      setState((){
-
-        fhrDataList = tempfhrDataList;
-        tocoDataList =  tempTocoDataList;
-
-      });
-      if (count >= 4800) {
+      if (count > 1200) {
         //取消定时器，避免无限回调
         timer.cancel();
       }
@@ -86,7 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         title: Text("监测数据"),
@@ -101,10 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               width: 1000, //宽度+左右padding
               height: 260, //高度+上下padding
-              child: LineChart(
+              child: LineChartWidget(
                 size.width,
                 260,
-                bgColor: Color(0x00FFFFFF),
+                bgColor: Color(0xFFFFFFFF),
                 xyColor: Colors.grey,
 
                 paddingTop: 30,
@@ -128,8 +132,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 xSpace: 10,
                 xIntervalValue: 50,
 
-                firstDataList: fhrDataList,
-                secondDataList: tocoDataList,
+                maxSeconds: 1200,
+
+                // firstDataList: fhrDataList,
+                // secondDataList: tocoDataList,
+                key: globalKey,
 
               ),
             ),
@@ -139,3 +146,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
