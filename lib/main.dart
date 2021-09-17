@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
-import 'package:echart/chartData.dart';
+import 'package:echart/model/fhrChartModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,18 +26,12 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  late List<ChartData> fhrDataList = [];
-  late List<ChartData> tocoDataList = [];
-
   GlobalKey<LineChartWidgetState> globalKey = GlobalKey<LineChartWidgetState>();
-
 
   @override
   void initState() {
@@ -52,12 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-
   void addList() {
-    // late List<ChartData> tempfhrDataList = [];
-    // late List<ChartData> tempTocoDataList = [];
-
-
     final _random = new Random();
     int next(int min, int max) => min + _random.nextInt(max - min);
 
@@ -67,23 +55,23 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer _timer = Timer.periodic(period, (timer) {
       //到时回调
 
-      List<double> tempfhrDataList = [];
-      List<double> tempTocoDataList = [];
+      List<int> tempfhrDataList = [];
+      List<int> tempTocoDataList = [];
 
-      double fhr = next(80, 200).toDouble();
-      double too = next(0, 101).toDouble();
+      int fhr = next(120, 200).toInt();
+      int too = next(0, 100).toInt();
 
       for (double i = 0; i < 4; i++) {
         tempfhrDataList.add(fhr);
         tempTocoDataList.add(too);
       }
 
-      if (count > 600) {
+      if (count > 1200) {
         //取消定时器，避免无限回调
         timer.cancel();
       } else {
         globalKey.currentState?.addDataList(
-            tempfhrDataList,secondList: tempTocoDataList);
+            firstList: tempfhrDataList, secondList: tempTocoDataList);
         count++;
       }
     });
@@ -91,12 +79,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          tooltip: '重置',
+          child: const Icon(Icons.refresh),
+          onPressed: () {
+            globalKey.currentState?.resetAllDates();
+
+          }),
       appBar: AppBar(
-        title: Text("监测数据"),
+        title: Text("监测中"),
       ),
       body: Container(
         color: Colors.white,
@@ -105,24 +98,10 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Container(
             width: 1000, //宽度+左右padding(默认为0)
             height: 260, //高度+上下padding(默认为0)
-            child: LineChartWidget(
-                globalKey,
-                size.width,
-                260,
-                maxYValue: 200,
-                maxXValue: 1000,
-                maxSeconds: 600,
-
-                paddingTop: 30,
-                paddingBottom: 30,
-                paddingLeft: 0,
-                paddingRight: 0,
-
-            ),
+            child: LineChartWidget(globalKey, FhrChartModel(size.width, 260)),
           ),
         ),
       ),
     );
   }
 }
-

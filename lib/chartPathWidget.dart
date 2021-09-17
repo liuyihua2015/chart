@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'package:echart/chartData.dart';
+import 'package:echart/model/fhrChartModel.dart';
 import 'package:flutter/material.dart';
-import 'package:echart/Pair.dart';
+import 'package:echart/model/Pair.dart';
 
 class ChartPathWidget extends CustomPainter {
   //first数据线的颜色
@@ -52,8 +52,8 @@ class ChartPathWidget extends CustomPainter {
   //x轴数据最大值
   int maxXValue;
 
-  //x轴时间最大值(秒)
-  int maxSeconds;
+  //总时长
+  int times;
 
   //数值的显示比例
   double firstNumberProportion;
@@ -74,11 +74,11 @@ class ChartPathWidget extends CustomPainter {
     required this.firstDataList,
     required this.maxXValue,
     required this.maxYValue,
-    required this.maxSeconds,
+    required this.times,
     this.firstPathLineColor = Colors.red,
     this.secondPathLineColor = Colors.greenAccent,
-    this.firstPathLineWidth = 0.5,
-    this.secondPathLineWidth = 0.5,
+    this.firstPathLineWidth = 1.0,
+    this.secondPathLineWidth = 1.0,
     this.secondDataList,
     this.pathPaint,
     this.showBaseline = false,
@@ -137,7 +137,7 @@ class ChartPathWidget extends CustomPainter {
         getRelativePosition(this.firstPathThresholdOffset.dx.toDouble() * firstNumberProportion);
 
     for (int i = 0; i < dataList.length; i++) {
-      innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
+      innerRectStartX = dataList[i].count * (maxXValue / times);
       ChartData data = dataList[i];
       Pair pairData = Pair(
         innerRectStartX,
@@ -214,7 +214,7 @@ class ChartPathWidget extends CustomPainter {
         getRelativePosition(this.secondPathThresholdOffset.dx.toDouble() * secondNumberProportion);
 
     for (int i = 0; i < dataList.length; i++) {
-      innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
+      innerRectStartX = dataList[i].count * (maxXValue / times);
       ChartData data = dataList[i];
       Pair pairData = Pair(
           innerRectStartX,

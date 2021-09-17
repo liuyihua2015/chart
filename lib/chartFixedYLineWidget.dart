@@ -119,8 +119,6 @@ class ChartFixedYLineWidget extends CustomPainter {
               canvas,
             );
           }
-
-          print(markYShaftValue);
         }
       }
     }
