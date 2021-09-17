@@ -68,6 +68,9 @@ class ChartLineWidget extends CustomPainter {
   //指定背景颜色
   Color specifiesBgColor;
 
+  Color textColor;
+  double textFontSize;
+
   //画布矩形
   Rect innerRect = Rect.zero;
 
@@ -94,6 +97,8 @@ class ChartLineWidget extends CustomPainter {
     this.valueLineSpace = 0,
     this.specifiesBgOffset = const Offset(0, 0),
     this.specifiesBgColor = Colors.greenAccent,
+    this.textColor = Colors.black,
+    this.textFontSize = 10,
   }) {
     linePaint = Paint()
       ..color = xyColor
@@ -251,7 +256,7 @@ class ChartLineWidget extends CustomPainter {
       /**/
       text: TextSpan(
         text: text,
-        style: TextStyle(color: Colors.black, fontSize: 10),
+        style: TextStyle(color: textColor, fontSize: textFontSize),
       ),
     );
     textPainter.layout();

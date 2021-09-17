@@ -42,6 +42,9 @@ class ChartFixedYLineWidget extends CustomPainter {
   //数值的显示范围
   Offset displayOffset;
 
+  Color textColor;
+  double textFontSize;
+
   //画布矩形
   Rect innerRect = Rect.zero;
 
@@ -59,6 +62,8 @@ class ChartFixedYLineWidget extends CustomPainter {
     this.yAxisMarkValueSuffix = "",
     this.numberProportion = 1,
     this.displayOffset = const Offset(0, 0),
+    this.textColor = Colors.black,
+    this.textFontSize = 10,
   }) {}
 
   @override
@@ -127,7 +132,7 @@ class ChartFixedYLineWidget extends CustomPainter {
       /**/
       text: TextSpan(
         text: text,
-        style: TextStyle(color: Colors.black, fontSize: 10),
+        style: TextStyle(color: textColor, fontSize: textFontSize),
       ),
     );
     textPainter.layout();
