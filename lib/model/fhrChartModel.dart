@@ -91,6 +91,18 @@ class FhrChartModel {
   ///xy轴文本大小
   final double textFontSize;
 
+  ///基线默认颜色
+  final Color baselineNormalColor;
+
+  ///xy值对应的基线宽度
+  final Color baselineValueColor;
+
+  ///基线默认宽度
+  final double baselineNormalWidth;
+
+  ///xy值对应的基线宽度
+  final double baselineValueWidth;
+
   ///数值的显示比例 - 将右边数值转化为左边百分比数组
   final double firstNumberProportion;
   final double secondNumberProportion;
@@ -133,6 +145,10 @@ class FhrChartModel {
         this.textColor = Colors.grey,
         this.textFontSize = 10,
         this.scrollViewIsRolling = true,
+        this.baselineNormalColor = Colors.grey,
+        this.baselineValueColor = Colors.grey,
+        this.baselineNormalWidth = 0.3,
+        this.baselineValueWidth = 1,
       });
 
   // getter

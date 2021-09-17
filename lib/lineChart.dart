@@ -133,17 +133,17 @@ class LineChartWidgetState extends State<LineChartWidget> {
       maxXValue: widget.fhrChartModel.maxXValue,
       xSpace: widget.fhrChartModel.xSpace,
       xIntervalValue: widget.fhrChartModel.xIntervalValue,
-      paddingLeft: widget.fhrChartModel.lineChartPaddingLeft > 0
-          ? 0
-          : widget.fhrChartModel.paddingLeft,
-      paddingRight: widget.fhrChartModel.lineChartPaddingRight > 0
-          ? 0
-          : widget.fhrChartModel.paddingRight,
+      paddingLeft:widget.fhrChartModel.paddingLeft,
+      paddingRight: widget.fhrChartModel.paddingRight,
       paddingTop: widget.fhrChartModel.paddingTop,
       paddingBottom: widget.fhrChartModel.paddingBottom,
       valueLineSpace: widget.fhrChartModel.valueLineSpace,
       textColor: widget.fhrChartModel.textColor,
       textFontSize: widget.fhrChartModel.textFontSize,
+      baselineNormalColor: widget.fhrChartModel.baselineNormalColor,
+      baselineValueColor: widget.fhrChartModel.baselineValueColor,
+      baselineNormalWidth: widget.fhrChartModel.baselineNormalWidth,
+      baselineValueWidth: widget.fhrChartModel.baselineValueWidth,
     );
   }
 
