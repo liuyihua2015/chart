@@ -55,6 +55,10 @@ class ChartPathWidget extends CustomPainter {
   //x轴时间最大值(秒)
   int maxSeconds;
 
+  //数值的显示比例
+  double firstNumberProportion;
+  double secondNumberProportion;
+
   late Offset _lastFirstPoint;
   late Offset _lastSecondPoint;
   double _lastFirstValue = 0;
@@ -84,6 +88,8 @@ class ChartPathWidget extends CustomPainter {
     this.paddingRight = 10,
     this.firstPathThresholdOffset = const Offset(0, 0),
     this.secondPathThresholdOffset = const Offset(0, 0),
+    this.firstNumberProportion = 1,
+    this.secondNumberProportion = 1,
   }) {
     _lastFirstPoint = Offset(0, 0);
     _lastSecondPoint = Offset(0, 0);
@@ -126,16 +132,16 @@ class ChartPathWidget extends CustomPainter {
 
     //阈值数值转换  大为小，小为大
     double min =
-        getRelativePosition(this.firstPathThresholdOffset.dy.toDouble());
+        getRelativePosition(this.firstPathThresholdOffset.dy.toDouble() * firstNumberProportion);
     double max =
-        getRelativePosition(this.firstPathThresholdOffset.dx.toDouble());
+        getRelativePosition(this.firstPathThresholdOffset.dx.toDouble() * firstNumberProportion);
 
     for (int i = 0; i < dataList.length; i++) {
       innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
       ChartData data = dataList[i];
       Pair pairData = Pair(
         innerRectStartX,
-        getRelativePosition(data.value),
+        getRelativePosition(data.value  * firstNumberProportion),
       );
       double x = pairData.first.toDouble();
       double y = pairData.last.toDouble();
@@ -179,9 +185,10 @@ class ChartPathWidget extends CustomPainter {
       }
 
       _lastFirstValue = y;
-      // if (i == dataList.length - 1) {
-      //   _lastFirstPoint = newLastPoint;
-      // }
+      if (i == dataList.length-1) {
+        _lastFirstPoint = newLastPoint;
+        // print(_lastFirstPoint.dx);
+      }
     }
 
     // //绘画曲线
@@ -202,9 +209,9 @@ class ChartPathWidget extends CustomPainter {
 
     //阈值数值转换  大为小，小为大
     double min =
-        getRelativePosition(this.secondPathThresholdOffset.dy.toDouble());
+        getRelativePosition(this.secondPathThresholdOffset.dy.toDouble() * secondNumberProportion);
     double max =
-        getRelativePosition(this.secondPathThresholdOffset.dx.toDouble());
+        getRelativePosition(this.secondPathThresholdOffset.dx.toDouble() * secondNumberProportion);
 
     for (int i = 0; i < dataList.length; i++) {
       innerRectStartX = dataList[i].count * (maxXValue / maxSeconds);
@@ -212,7 +219,7 @@ class ChartPathWidget extends CustomPainter {
       Pair pairData = Pair(
           innerRectStartX,
           //内矩形高度减去数据实际值的实际像素大小，再加上顶部空白的距离
-          getRelativePosition(data.value));
+          getRelativePosition(data.value * secondNumberProportion));
       double x = pairData.first.toDouble();
       double y = pairData.last.toDouble();
 

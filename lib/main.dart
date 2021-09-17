@@ -54,8 +54,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void addList() {
-    late List<ChartData> tempfhrDataList = [];
-    late List<ChartData> tempTocoDataList = [];
+    // late List<ChartData> tempfhrDataList = [];
+    // late List<ChartData> tempTocoDataList = [];
+
 
     final _random = new Random();
     int next(int min, int max) => min + _random.nextInt(max - min);
@@ -66,20 +67,23 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer _timer = Timer.periodic(period, (timer) {
       //到时回调
 
+      List<double> tempfhrDataList = [];
+      List<double> tempTocoDataList = [];
+
       double fhr = next(80, 200).toDouble();
       double too = next(0, 101).toDouble();
 
       for (double i = 0; i < 4; i++) {
-        tempfhrDataList.add(ChartData(count.toDouble(), fhr));
-        tempTocoDataList.add(ChartData(count.toDouble(), too));
+        tempfhrDataList.add(fhr);
+        tempTocoDataList.add(too);
       }
 
-      if (count > 1200) {
+      if (count > 600) {
         //取消定时器，避免无限回调
         timer.cancel();
       } else {
-        globalKey.currentState?.updataDataList(
-            tempfhrDataList, tempTocoDataList);
+        globalKey.currentState?.addDataList(
+            tempfhrDataList,secondList: tempTocoDataList);
         count++;
       }
     });
@@ -107,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 260,
                 maxYValue: 200,
                 maxXValue: 1000,
-                maxSeconds: 1200,
+                maxSeconds: 600,
 
                 paddingTop: 30,
                 paddingBottom: 30,

@@ -30,6 +30,12 @@ class LineChartWidget extends StatefulWidget {
   //控件距离右边的距离
   final int paddingRight;
 
+  // LineChart左边距
+  final int lineChartPaddingLeft;
+
+  // LineChart右边距
+  final int lineChartPaddingRight;
+
   //控件距离顶部的距离
   final int paddingTop;
 
@@ -72,8 +78,8 @@ class LineChartWidget extends StatefulWidget {
   //第二条曲线数据 最多两条数据
   late List<ChartData>? _secondDataList;
 
-  //屏幕size
-  double? _screenWidth;
+  //数值的显示比例
+  double secondNumberProportion;
 
   //scrollView是否自己滚动
   late bool _scrollViewIsRolling;
@@ -101,6 +107,9 @@ class LineChartWidget extends StatefulWidget {
     this.firstPathThresholdOffset = const Offset(80, 200),
     this.specifiesBgColor = Colors.greenAccent,
     this.fixedYLineBgColor = Colors.white,
+    this.lineChartPaddingLeft = 40,
+    this.lineChartPaddingRight = 40,
+    this.secondNumberProportion = 0.4,
   }) : super(key: key) {
     _firstDataList = [];
     _secondDataList = [];
@@ -115,26 +124,36 @@ class LineChartWidgetState extends State<LineChartWidget> {
   ScrollController _scrollController = ScrollController();
 
   ///更新数据
-  void updataDataList(List<ChartData>? firstList, List<ChartData>? secondList) {
+  void addDataList(List<double> firstList, {List<double>? secondList}) {
     setState(() {
-      if (firstList != null) {
-        //数据赋值
-        widget._firstDataList = firstList;
-        if (secondList != null) {
-          widget._secondDataList = secondList;
+      for (var double in firstList) {
+        ChartData data =
+            ChartData(widget._firstDataList!.length / firstList.length, double);
+        widget._firstDataList!.add(data);
+      }
+
+      if (secondList != null) {
+        for (var double in secondList) {
+          ChartData data = ChartData(
+              widget._secondDataList!.length / firstList.length, double);
+          widget._secondDataList!.add(data);
         }
-        //自动滚动
-        if (widget._scrollViewIsRolling) {
-          double currentWidth =
-              firstList.length ~/ 4.0 * (widget.maxXValue / widget.maxSeconds);
-          double chartHalfWidth = (widget.width.toDouble() - 40 - 50) * 0.5;
-          double offset = 0;
-          if (currentWidth > chartHalfWidth) {
-            offset = currentWidth - chartHalfWidth;
-          }
-          _scrollController.animateTo(offset,
-              duration: Duration(milliseconds: 300), curve: Curves.easeInCirc);
+      }
+      //自动滚动
+      if (widget._scrollViewIsRolling) {
+        double currentWidth = firstList.length ~/
+            firstList.length *
+            (widget.maxXValue / widget.maxSeconds);
+        double chartHalfWidth = (widget.width.toDouble() -
+                widget.lineChartPaddingLeft.toDouble() -
+                widget.lineChartPaddingRight.toDouble()) *
+            0.5;
+        double offset = 0;
+        if (currentWidth > chartHalfWidth) {
+          offset = currentWidth - chartHalfWidth;
         }
+        _scrollController.animateTo(offset,
+            duration: Duration(milliseconds: 300), curve: Curves.easeInCirc);
       }
     });
   }
@@ -142,14 +161,6 @@ class LineChartWidgetState extends State<LineChartWidget> {
   @override
   void initState() {
     super.initState();
-    print("object");
-    _scrollController.addListener(() {
-      // 打印位置监听数据
-      // print("lister = ${_scrollController.offset}");
-
-      //   // 滚动到起始位置
-      //   _scrollController.animateTo(0, duration: Duration(seconds: 2), curve: Curves.easeInCirc);
-    });
   }
 
   @override
@@ -184,6 +195,7 @@ class LineChartWidgetState extends State<LineChartWidget> {
       paddingTop: widget.paddingTop,
       paddingBottom: widget.paddingBottom,
       firstPathThresholdOffset: widget.firstPathThresholdOffset,
+      secondNumberProportion: widget.secondNumberProportion,
     );
   }
 
@@ -193,7 +205,7 @@ class LineChartWidgetState extends State<LineChartWidget> {
       specifiesBgOffset: widget.specifiesBgOffset,
       bgColor: widget.bgColor,
       xyColor: widget.xyColor,
-      showYAxis: false,
+      showYAxis: widget.lineChartPaddingLeft > 0,
       showBaseline: widget.showBaseline,
       maxYValue: widget.maxYValue,
       ySpace: widget.ySpace,
@@ -222,6 +234,8 @@ class LineChartWidgetState extends State<LineChartWidget> {
       valueLineSpace: isRight ? 5 : widget.valueLineSpace,
       isRightWidget: isRight,
       yAxisMarkValueSuffix: isRight ? "%" : "",
+      displayOffset: isRight ? Offset(0, 40) : Offset(0, 0),
+      numberProportion: widget.secondNumberProportion,
     );
   }
 
@@ -246,7 +260,12 @@ class LineChartWidgetState extends State<LineChartWidget> {
               physics: ClampingScrollPhysics(),
               controller: _scrollController,
               child: Container(
-                  margin: const EdgeInsets.fromLTRB(40, 0, 50, 0),
+                  margin: EdgeInsets.fromLTRB(
+                      widget.lineChartPaddingLeft.toDouble(),
+                      0,
+                      widget.lineChartPaddingRight.toDouble() +
+                          widget.valueLineSpace,
+                      0),
                   width: (widget.maxXValue +
                           widget.paddingLeft +
                           widget.paddingRight)
@@ -262,7 +281,7 @@ class LineChartWidgetState extends State<LineChartWidget> {
           left: 0,
           top: 0,
           bottom: 0,
-          width: 40,
+          width: widget.lineChartPaddingLeft.toDouble(),
           child: RepaintBoundary(
             child: CustomPaint(
               painter: customChartFixedYLineWidget(false),
@@ -273,7 +292,7 @@ class LineChartWidgetState extends State<LineChartWidget> {
           right: 0,
           top: 0,
           bottom: 0,
-          width: 40,
+          width: widget.lineChartPaddingRight.toDouble(),
           child: RepaintBoundary(
             child: CustomPaint(
               painter: customChartFixedYLineWidget(true),

@@ -36,6 +36,11 @@ class ChartFixedYLineWidget extends CustomPainter {
   //值后面添加标记，默认为""
   String yAxisMarkValueSuffix;
 
+  //数值的显示比例
+  double numberProportion;
+
+  //数值的显示范围
+  Offset displayOffset;
 
   //画布矩形
   Rect innerRect = Rect.zero;
@@ -52,6 +57,8 @@ class ChartFixedYLineWidget extends CustomPainter {
     this.valueLineSpace = 0,
     this.isRightWidget = false,
     this.yAxisMarkValueSuffix = "",
+    this.numberProportion = 1,
+    this.displayOffset = const Offset(0, 0),
   }) {}
 
   @override
@@ -79,20 +86,38 @@ class ChartFixedYLineWidget extends CustomPainter {
       int markYShaftValue = i * ySpace.toInt();
 
       String value = markYShaftValue.toString();
+
       if (isRightWidget) {
-        value = (markYShaftValue ~/ 0.4).toString() + yAxisMarkValueSuffix;
+        value = (markYShaftValue ~/ numberProportion).toString() +
+            yAxisMarkValueSuffix;
       }
 
       if ((i % markYShaft) == 0) {
-        drawYText(
-          value,
-          Offset(
-              isRightWidget
-                  ? valueLineSpace.toDouble()
-                  : size.width - valueLineSpace,
-              innerRect.bottomLeft.dy - i * ySpace - paddingTop),
-          canvas,
-        );
+        if (displayOffset == Offset(0, 0)) {
+          drawYText(
+            value,
+            Offset(
+                isRightWidget
+                    ? valueLineSpace.toDouble()
+                    : size.width - valueLineSpace,
+                innerRect.bottomLeft.dy - i * ySpace - paddingTop),
+            canvas,
+          );
+        } else {
+          if (markYShaftValue == 0 || (markYShaftValue > displayOffset.dx && markYShaftValue <= displayOffset.dy)) {
+            drawYText(
+              value,
+              Offset(
+                  isRightWidget
+                      ? valueLineSpace.toDouble()
+                      : size.width - valueLineSpace,
+                  innerRect.bottomLeft.dy - i * ySpace - paddingTop),
+              canvas,
+            );
+          }
+
+          print(markYShaftValue);
+        }
       }
     }
   }
