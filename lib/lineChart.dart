@@ -79,6 +79,7 @@ class LineChartWidget extends StatefulWidget {
   late List<ChartData>? _secondDataList;
 
   //数值的显示比例
+  double firstNumberProportion;
   double secondNumberProportion;
 
   //scrollView是否自己滚动
@@ -109,6 +110,7 @@ class LineChartWidget extends StatefulWidget {
     this.fixedYLineBgColor = Colors.white,
     this.lineChartPaddingLeft = 40,
     this.lineChartPaddingRight = 40,
+    this.firstNumberProportion = 1,
     this.secondNumberProportion = 0.4,
   }) : super(key: key) {
     _firstDataList = [];
@@ -235,7 +237,7 @@ class LineChartWidgetState extends State<LineChartWidget> {
       isRightWidget: isRight,
       yAxisMarkValueSuffix: isRight ? "%" : "",
       displayOffset: isRight ? Offset(0, 40) : Offset(0, 0),
-      numberProportion: widget.secondNumberProportion,
+      numberProportion: isRight ? widget.secondNumberProportion : widget.firstNumberProportion,
     );
   }
 

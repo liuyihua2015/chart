@@ -85,11 +85,10 @@ class ChartFixedYLineWidget extends CustomPainter {
       //需要标记轴的标记值
       int markYShaftValue = i * ySpace.toInt();
 
-      String value = markYShaftValue.toString();
+      String value = (markYShaftValue ~/ numberProportion).toString();
 
-      if (isRightWidget) {
-        value = (markYShaftValue ~/ numberProportion).toString() +
-            yAxisMarkValueSuffix;
+      if (yAxisMarkValueSuffix.length > 0) {
+        value = value + yAxisMarkValueSuffix;
       }
 
       if ((i % markYShaft) == 0) {
