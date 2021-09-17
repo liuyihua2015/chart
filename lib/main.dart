@@ -47,6 +47,11 @@ class _MyHomePageState extends State<MyHomePage> {
     addList();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
 
   void addList() {
@@ -70,18 +75,13 @@ class _MyHomePageState extends State<MyHomePage> {
         tempfhrDataList.add(ChartData(count.toDouble(), fhr));
         tempTocoDataList.add(ChartData(count.toDouble(), too));
       }
-      globalKey.currentState?.updataDataList(tempfhrDataList, tempTocoDataList);
-
-      count++;
-      // setState((){
-        //   fhrDataList = tempfhrDataList;
-      //   tocoDataList =  tempTocoDataList;
-      //
-      // });
 
       if (count > 1200) {
         //取消定时器，避免无限回调
         timer.cancel();
+      }else{
+        globalKey.currentState?.updataDataList(tempfhrDataList, tempTocoDataList);
+        count++;
       }
     });
 
@@ -134,8 +134,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 maxSeconds: 1200,
 
-                // firstDataList: fhrDataList,
-                // secondDataList: tocoDataList,
                 key: globalKey,
 
               ),

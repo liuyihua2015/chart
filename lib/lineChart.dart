@@ -81,6 +81,9 @@ class LineChartWidget extends StatefulWidget {
   //屏幕size
   double? _screenWidth;
 
+  //scrollView是否自己滚动
+  late bool _scrollViewIsRolling;
+
   LineChartWidget(
     this.width,
     this.height, {
@@ -109,7 +112,7 @@ class LineChartWidget extends StatefulWidget {
   }) : super(key: key) {
     _firstDataList = [];
     _secondDataList = [];
-    _screenWidth = 0.0;
+    _scrollViewIsRolling = true;
   }
 
   @override
@@ -121,23 +124,25 @@ class LineChartWidgetState extends State<LineChartWidget> {
 
   ///更新数据
   void updataDataList(List<ChartData>? firstList, List<ChartData>? secondList) {
-
     setState(() {
-
       if (firstList != null) {
-
-        //应该偏移量
-        double offset = firstList.length ~/4.0/widget.width + widget._screenWidth!.toDouble() * 0.5;
-        print(widget.width);
-
-
-//TODO...偏移距离
-
+        //数据赋值
         widget._firstDataList = firstList;
-        _scrollController.animateTo(offset, duration: Duration(milliseconds: 500), curve: Curves.easeInCirc);
-      }
-      if (secondList != null) {
-        widget._secondDataList = secondList;
+        if (secondList != null) {
+          widget._secondDataList = secondList;
+        }
+        //自动滚动
+        if (widget._scrollViewIsRolling) {
+          double currentWidth =
+              firstList.length ~/ 4.0 * (widget.maxXValue / widget.maxSeconds);
+          double chartHalfWidth = (widget.width.toDouble() - 40 - 50) * 0.5;
+          double offset = 0;
+          if (currentWidth > chartHalfWidth) {
+            offset = currentWidth - chartHalfWidth;
+          }
+          _scrollController.animateTo(offset,
+              duration: Duration(milliseconds: 300), curve: Curves.easeInCirc);
+        }
       }
     });
   }
@@ -232,16 +237,35 @@ class LineChartWidgetState extends State<LineChartWidget> {
   Widget build(BuildContext context) {
     return Container(
       child: Stack(alignment: Alignment.center, children: <Widget>[
-        SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: ClampingScrollPhysics(),
-            controller: _scrollController,
-            child: Container(
-                margin: const EdgeInsets.fromLTRB(40, 0, 50, 0),
-                width: (widget.maxXValue + widget.paddingLeft + widget.paddingRight).toDouble(), //宽度+左右padding
-                height: (widget.maxYValue + widget.paddingTop + widget.paddingBottom).toDouble(), //高度+上下padding
-                child: createLayers(
-                    [customPaintLineWidget(), customPaintWidget()]))),
+        NotificationListener<ScrollNotification>(
+          onNotification: (scrollState) {
+            if (scrollState is ScrollEndNotification) {
+              Future.delayed(const Duration(milliseconds: 3000), () {})
+                  .then((s) {
+                widget._scrollViewIsRolling = true;
+              });
+            } else if (scrollState is ScrollStartNotification) {
+              widget._scrollViewIsRolling = false;
+            }
+            return false;
+          },
+          child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: ClampingScrollPhysics(),
+              controller: _scrollController,
+              child: Container(
+                  margin: const EdgeInsets.fromLTRB(40, 0, 50, 0),
+                  width: (widget.maxXValue +
+                          widget.paddingLeft +
+                          widget.paddingRight)
+                      .toDouble(), //宽度+左右padding
+                  height: (widget.maxYValue +
+                          widget.paddingTop +
+                          widget.paddingBottom)
+                      .toDouble(), //高度+上下padding
+                  child: createLayers(
+                      [customPaintLineWidget(), customPaintWidget()]))),
+        ),
         Positioned(
           left: 0,
           top: 0,
