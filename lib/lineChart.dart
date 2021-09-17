@@ -18,9 +18,6 @@ class LineChartWidget extends StatefulWidget {
   //x轴与y轴的颜色
   final Color xyColor;
 
-  //柱状图的颜色
-  final Color columnarColor;
-
   //是否显示x轴与y轴的基准线
   final bool showBaseline;
 
@@ -63,9 +60,6 @@ class LineChartWidget extends StatefulWidget {
   //x轴 文本标签 间隔多少显
   final double xIntervalValue;
 
-  //折线的颜色
-  final Color polygonalLineColor;
-
   //指定背景范围
   final Offset specifiesBgOffset;
 
@@ -85,30 +79,28 @@ class LineChartWidget extends StatefulWidget {
   late bool _scrollViewIsRolling;
 
   LineChartWidget(
+    Key? key,
     this.width,
     this.height, {
     required this.maxYValue,
     required this.maxXValue,
     required this.maxSeconds,
-    this.bgColor = Colors.white,
-    this.xyColor = Colors.black,
-    this.columnarColor = Colors.blue,
-    this.showBaseline = false,
+    this.bgColor = Colors.transparent,
+    this.xyColor = Colors.grey,
+    this.showBaseline = true,
     this.ySpace = 10,
-    this.yIntervalValue = 10,
+    this.yIntervalValue = 40,
     this.xSpace = 10,
-    this.xIntervalValue = 10,
+    this.xIntervalValue = 50,
     this.paddingLeft = 0,
     this.paddingRight = 0,
     this.paddingTop = 0,
     this.paddingBottom = 0,
     this.valueLineSpace = 10,
-    this.polygonalLineColor = Colors.blue,
-    this.specifiesBgOffset = const Offset(0, 0),
+    this.specifiesBgOffset = const Offset(120, 160),
     this.firstPathThresholdOffset = const Offset(80, 200),
-    this.specifiesBgColor = Colors.green,
+    this.specifiesBgColor = Colors.greenAccent,
     this.fixedYLineBgColor = Colors.white,
-    Key? key,
   }) : super(key: key) {
     _firstDataList = [];
     _secondDataList = [];

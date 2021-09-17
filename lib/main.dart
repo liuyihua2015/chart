@@ -28,7 +28,6 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
 
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -55,7 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void addList() {
-
     late List<ChartData> tempfhrDataList = [];
     late List<ChartData> tempTocoDataList = [];
 
@@ -68,8 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer _timer = Timer.periodic(period, (timer) {
       //到时回调
 
-      double fhr =  next(80, 200).toDouble();
-      double too =  next(0, 101).toDouble();
+      double fhr = next(80, 200).toDouble();
+      double too = next(0, 101).toDouble();
 
       for (double i = 0; i < 4; i++) {
         tempfhrDataList.add(ChartData(count.toDouble(), fhr));
@@ -79,67 +77,46 @@ class _MyHomePageState extends State<MyHomePage> {
       if (count > 1200) {
         //取消定时器，避免无限回调
         timer.cancel();
-      }else{
-        globalKey.currentState?.updataDataList(tempfhrDataList, tempTocoDataList);
+      } else {
+        globalKey.currentState?.updataDataList(
+            tempfhrDataList, tempTocoDataList);
         count++;
       }
     });
-
-
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery
+        .of(context)
+        .size;
     return Scaffold(
       appBar: AppBar(
         title: Text("监测数据"),
       ),
       body: Container(
         color: Colors.white,
-        // child: SingleChildScrollView(
-        //   scrollDirection: Axis.horizontal,
-        //   physics: ClampingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0.0),
-            child: Container(
-              width: 1000, //宽度+左右padding
-              height: 260, //高度+上下padding
-              child: LineChartWidget(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: Container(
+            width: 1000, //宽度+左右padding(默认为0)
+            height: 260, //高度+上下padding(默认为0)
+            child: LineChartWidget(
+                globalKey,
                 size.width,
                 260,
-                bgColor: Color(0xFFFFFFFF),
-                xyColor: Colors.grey,
+                maxYValue: 200,
+                maxXValue: 1000,
+                maxSeconds: 1200,
 
                 paddingTop: 30,
                 paddingBottom: 30,
-
                 paddingLeft: 0,
                 paddingRight: 0,
 
-                valueLineSpace: 10,
-
-                showBaseline: true,
-
-                specifiesBgOffset: Offset(120, 160),
-                specifiesBgColor: Colors.greenAccent,
-
-                maxYValue: 200,
-                ySpace: 10,
-                yIntervalValue: 40,
-
-                maxXValue: 1000,
-                xSpace: 10,
-                xIntervalValue: 50,
-
-                maxSeconds: 1200,
-
-                key: globalKey,
-
-              ),
             ),
           ),
-        // ),
+        ),
       ),
     );
   }
