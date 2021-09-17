@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'package:echart/model/fhrChartModel.dart';
+import 'package:echart/chartWidget/model/chartModel.dart';
 import 'package:flutter/material.dart';
-import 'package:echart/model/Pair.dart';
+import 'package:echart/chartWidget/model/pair.dart';
 
 class ChartPathWidget extends CustomPainter {
   //first数据线的颜色

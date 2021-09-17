@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-class FhrChartModel {
+class ChartModel {
   final double width;
   final double height;
 
@@ -110,7 +110,7 @@ class FhrChartModel {
   ///scrollView是否自己滚动
   late bool scrollViewIsRolling;
 
-  FhrChartModel(
+  ChartModel(
       this.width,
       this.height, {
         this.maxYValue = 200,

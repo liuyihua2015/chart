@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:echart/model/fhrChartModel.dart';
+import 'package:echart/chartWidget/model/chartModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'lineChart.dart';
+import 'chartWidget/chartWidget.dart';
 
 void main() => runApp(MyApp());
 
@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  GlobalKey<LineChartWidgetState> globalKey = GlobalKey<LineChartWidgetState>();
+  GlobalKey<ChartWidgetState> globalKey = GlobalKey<ChartWidgetState>();
 
   @override
   void initState() {
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Container(
             width: 1000, //宽度+左右padding(默认为0)
             height: 260, //高度+上下padding(默认为0)
-            child: LineChartWidget(globalKey, FhrChartModel(size.width, 260)),
+            child: ChartWidget(globalKey, ChartModel(size.width, 260)),
           ),
         ),
       ),
