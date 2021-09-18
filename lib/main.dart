@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:echart/chartWidget/model/chartModel.dart';
+import 'package:chart_widget/chartWidget/chartWidget.dart';
+import 'package:chart_widget/chartWidget/model/chartModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'chartWidget/chartWidget.dart';
 
 void main() => runApp(MyApp());
 
@@ -58,11 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
       List<int> tempfhrDataList = [];
       List<int> tempTocoDataList = [];
 
-      int fhr = next(120, 200).toInt();
+      int fhr = next(120, 180).toInt();
       int too = next(0, 100).toInt();
 
       for (double i = 0; i < 4; i++) {
-        tempfhrDataList.add(fhr);
+
+        if (count % 5 == 0) {
+          tempfhrDataList.add(0);
+        }else{
+          tempfhrDataList.add(fhr);
+        }
+
         tempTocoDataList.add(too);
       }
 
@@ -98,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Container(
             width: 1000, //宽度+左右padding(默认为0)
             height: 260, //高度+上下padding(默认为0)
-            child: ChartWidget(globalKey, ChartModel(size.width, 260)),
+            child: ChartWidget(globalKey, ChartModel(size.width, 260,firstPathThresholdOffset: Offset(0,0))),
           ),
         ),
       ),
